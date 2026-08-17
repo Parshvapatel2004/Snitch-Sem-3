@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useAuth } from "../hook/useAuth";
 import { useNavigate } from "react-router";
+import ContinueWithGoogle from "../components/ContinueWithGoogle";
 
 const Login = () => {
   const { handleLogin } = useAuth();
   const navigate = useNavigate();
+  const [loginError, setloginError] = useState("");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -22,13 +24,18 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setloginError("");
+
       await handleLogin({
         email: formData.email,
         password: formData.password,
       });
       navigate("/");
     } catch (error) {
-      console.error("Login failed", error);
+      const message =
+        error.response?.data?.message ||
+        "Invalid email or password login failed";
+      setloginError(message);
     }
   };
 
@@ -118,6 +125,11 @@ const Login = () => {
                 placeholder="••••••••"
               />
             </div>
+            {loginError && (
+              <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded px-4 py-3">
+                {loginError}
+              </div>
+            )}
 
             {/* Submit Button */}
             <button
@@ -126,6 +138,9 @@ const Login = () => {
             >
               Sign In
             </button>
+
+
+            <ContinueWithGoogle/>
 
             <div className="text-center mt-6">
               <a

@@ -9,11 +9,13 @@ const userSchema = new mongoose.Schema({
   },
   contact: {
     type: String,
-    required: true,
+    required: false,
   },
   password: {
     type: String,
-    required: true,
+    required: function () {
+      return !this.googleId;
+    },
   },
   fullname: {
     type: String,
@@ -24,21 +26,21 @@ const userSchema = new mongoose.Schema({
     enum: ["buyer", "seller"],
     default: "buyer",
   },
+  googleId: {
+    type: String,
+  },
 });
 
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
-
   const hash = await bcrypt.hash(this.password, 10);
   this.password = hash;
 });
 
-
 userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
-
 
 const userModel = mongoose.model("user", userSchema);
 export default userModel;
