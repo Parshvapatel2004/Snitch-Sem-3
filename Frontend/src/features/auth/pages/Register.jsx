@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useAuth } from "../hook/useAuth";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import ContinueWithGoogle from "../components/ContinueWithGoogle";
 
 const Register = () => {
   const { handleRegister } = useAuth();
   const navigate = useNavigate();
+
   const [registerError, setRegisterError] = useState("");
 
   const [formData, setFormData] = useState({
@@ -18,16 +19,69 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+
+    // Clear error when user starts typing
+    if (registerError) {
+      setRegisterError("");
+    }
+  };
+
+  // Frontend validation
+  const validateForm = () => {
+    if (!formData.fullName.trim()) {
+      return "Full name is required";
+    }
+
+    if (formData.fullName.trim().length < 3) {
+      return "Full name must be at least 3 characters long";
+    }
+
+    if (!formData.contactNumber.trim()) {
+      return "Contact is required";
+    }
+
+    if (!/^\d{10}$/.test(formData.contactNumber)) {
+      return "Contact must be a 10-digit number";
+    }
+
+    if (!formData.email.trim()) {
+      return "Email is required";
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      return "Please enter a valid email address";
+    }
+
+    if (!formData.password) {
+      return "Password is required";
+    }
+
+    if (formData.password.length < 6) {
+      return "Password must be at least 6 characters long";
+    }
+
+    return "";
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Run frontend validation first
+    const validationError = validateForm();
+
+    if (validationError) {
+      setRegisterError(validationError);
+      return;
+    }
+
     try {
       setRegisterError("");
+
       await handleRegister({
         email: formData.email,
         contact: formData.contactNumber,
@@ -35,11 +89,14 @@ const Register = () => {
         isSeller: formData.isSeller,
         fullname: formData.fullName,
       });
+
       navigate("/");
     } catch (error) {
+      // Backend error
       const message =
         error.response?.data?.message ||
         "Registration failed. Please try again.";
+
       setRegisterError(message);
     }
   };
@@ -70,6 +127,7 @@ const Register = () => {
                 aesthetic.
               </span>
             </p>
+
             <p className="text-[#d0c6ab] max-w-md text-lg leading-relaxed">
               Join the exclusive movement of creators and brands redefining the
               modern fashion landscape.
@@ -85,6 +143,7 @@ const Register = () => {
             <h2 className="text-sm uppercase tracking-widest text-[#FFD700] font-medium mb-3">
               Welcome to Snitch
             </h2>
+
             <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-white">
               Elevate Your Style
             </h1>
@@ -96,6 +155,7 @@ const Register = () => {
               <label className="text-sm text-[#d0c6ab] mb-2 font-medium">
                 Full Name
               </label>
+
               <input
                 type="text"
                 name="fullName"
@@ -112,6 +172,7 @@ const Register = () => {
               <label className="text-sm text-[#d0c6ab] mb-2 font-medium">
                 Contact Number
               </label>
+
               <input
                 type="tel"
                 name="contactNumber"
@@ -128,6 +189,7 @@ const Register = () => {
               <label className="text-sm text-[#d0c6ab] mb-2 font-medium">
                 Email Address
               </label>
+
               <input
                 type="email"
                 name="email"
@@ -144,6 +206,7 @@ const Register = () => {
               <label className="text-sm text-[#d0c6ab] mb-2 font-medium">
                 Password
               </label>
+
               <input
                 type="password"
                 name="password"
@@ -166,6 +229,7 @@ const Register = () => {
                   onChange={handleChange}
                   className="peer appearance-none w-6 h-6 border border-[#4d4732] rounded bg-[#1c1b1b] lg:bg-[#0e0e0e] checked:bg-[#FFD700] checked:border-[#FFD700] cursor-pointer transition-colors duration-300 group-hover:border-[#FFD700]"
                 />
+
                 <svg
                   className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none opacity-0 peer-checked:opacity-100 text-[#221b00]"
                   xmlns="http://www.w3.org/2000/svg"
@@ -179,6 +243,7 @@ const Register = () => {
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
               </div>
+
               <label
                 htmlFor="isSeller"
                 className="text-sm text-[#e5e2e1] group-hover:text-[#FFD700] cursor-pointer select-none transition-colors duration-300"
@@ -186,8 +251,10 @@ const Register = () => {
                 Register as Seller
               </label>
             </div>
+
             <ContinueWithGoogle />
 
+            {/* Error Message */}
             {registerError && (
               <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded px-4 py-3">
                 {registerError}

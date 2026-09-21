@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../hook/useAuth";
 import { useNavigate } from "react-router";
 import ContinueWithGoogle from "../components/ContinueWithGoogle";
@@ -6,6 +6,7 @@ import ContinueWithGoogle from "../components/ContinueWithGoogle";
 const Login = () => {
   const { handleLogin } = useAuth();
   const navigate = useNavigate();
+
   const [loginError, setloginError] = useState("");
 
   const [formData, setFormData] = useState({
@@ -15,14 +16,46 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    // Clear error when user starts typing again
+    if (loginError) {
+      setloginError("");
+    }
+  };
+
+  // Frontend validation
+  const validateForm = () => {
+    if (!formData.email.trim()) {
+      return "Email is required";
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      return "Please enter a valid email address";
+    }
+
+    if (!formData.password.trim()) {
+      return "Password is required";
+    }
+
+    return "";
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check frontend validation first
+    const validationError = validateForm();
+
+    if (validationError) {
+      setloginError(validationError);
+      return;
+    }
+
     try {
       setloginError("");
 
@@ -30,11 +63,13 @@ const Login = () => {
         email: formData.email,
         password: formData.password,
       });
+
       navigate("/");
     } catch (error) {
       const message =
         error.response?.data?.message ||
         "Invalid email or password login failed";
+
       setloginError(message);
     }
   };
@@ -49,7 +84,6 @@ const Login = () => {
           className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-luminosity hover:scale-105 transition-transform duration-[20s] ease-out"
         />
 
-        {/* Gradient overlays to merge image nicely into the dark background */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-transparent to-transparent opacity-90"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-[#0e0e0e]/50 via-transparent to-[#0e0e0e] opacity-90"></div>
 
@@ -65,6 +99,7 @@ const Login = () => {
                 back.
               </span>
             </p>
+
             <p className="text-[#d0c6ab] max-w-md text-lg leading-relaxed">
               Sign in to explore the latest exclusive drops and manage your
               aesthetic.
@@ -80,6 +115,7 @@ const Login = () => {
             <h2 className="text-sm uppercase tracking-widest text-[#FFD700] font-medium mb-3">
               Sign in to Snitch
             </h2>
+
             <h1 className="text-4xl md:text-5xl font-bold tracking-tighter text-white">
               Enter the Vault
             </h1>
@@ -91,6 +127,7 @@ const Login = () => {
               <label className="text-sm text-[#d0c6ab] mb-2 font-medium">
                 Email Address
               </label>
+
               <input
                 type="email"
                 name="email"
@@ -108,6 +145,7 @@ const Login = () => {
                 <label className="text-sm text-[#d0c6ab] font-medium">
                   Password
                 </label>
+
                 <a
                   href="#"
                   className="text-xs text-[#999077] hover:text-[#FFD700] transition-colors"
@@ -115,6 +153,7 @@ const Login = () => {
                   Forgot password?
                 </a>
               </div>
+
               <input
                 type="password"
                 name="password"
@@ -125,6 +164,8 @@ const Login = () => {
                 placeholder="••••••••"
               />
             </div>
+
+            {/* Error Message */}
             {loginError && (
               <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded px-4 py-3">
                 {loginError}
@@ -139,8 +180,7 @@ const Login = () => {
               Sign In
             </button>
 
-
-            <ContinueWithGoogle/>
+            <ContinueWithGoogle />
 
             <div className="text-center mt-6">
               <a
