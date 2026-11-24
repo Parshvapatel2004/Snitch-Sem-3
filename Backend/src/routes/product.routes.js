@@ -2,6 +2,7 @@ import express from "express";
 import { authenticateSeller } from "../middlewares/auth.middleware.js";
 import {
   createProduct,
+  getAllProducts,
   getSellerProducts,
 } from "../controllers/product.controller.js";
 import { createProductValidator } from "../validator/product.validator.js";
@@ -25,5 +26,7 @@ router.post(
 );
 
 router.get("/seller", authenticateSeller, getSellerProducts);
+
+router.get("/", getAllProducts);
 
 export default router;
