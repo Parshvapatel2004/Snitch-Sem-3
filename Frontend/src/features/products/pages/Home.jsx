@@ -2,11 +2,14 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useProduct } from "../hooks/useProduct";
 import { Link } from "react-router";
+import { useNavigate } from "react-router";
 
 const Home = () => {
   const products = useSelector((state) => state.product.products);
   const user = useSelector((state) => state.auth.user);
   const { handleGetAllProducts } = useProduct();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     handleGetAllProducts();
@@ -116,6 +119,7 @@ const Home = () => {
 
                 return (
                   <div
+                    onClick={() => navigate(`/product/${product._id}`)}
                     key={product._id}
                     className="group cursor-pointer flex flex-col"
                   >
