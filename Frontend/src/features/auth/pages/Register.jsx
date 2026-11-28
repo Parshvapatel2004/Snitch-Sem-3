@@ -80,7 +80,11 @@ const Register = () => {
         isSeller: formData.isSeller,
         fullname: formData.fullName,
       });
-      navigate("/");
+      if (formData.isSeller) {
+        navigate("/seller/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       const message =
         error.response?.data?.message ||
